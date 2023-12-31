@@ -16,5 +16,9 @@ RUN useradd -m -s /bin/bash user
 RUN echo 'user:shanker' | chpasswd
 RUN echo "LANG=zh_CN.UTF-8" > /etc/locale.conf
 RUN sed -i '/pam_limits\.so/s/required/optional/' /etc/pam.d/system-auth
+RUN sed -i '/pam_loginuid\.so/s/required/optional/' /usr/lib/pam.d/systemd-user
+RUN systemctl mask rtkit-daemon.service
+RUN echo 'XDG_VTNR=0' > /etc/env-vnc-pre
+RUN sed -i $'0,/session/{ /session/ i session required pam_env.so envfile=/etc/env-vnc-pre\n}' /etc/pam.d/sddm
 
 CMD [ "/sbin/init" ]
