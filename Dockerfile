@@ -1,4 +1,4 @@
-FROM localhost/aosc-desktop:20231231
+FROM localhost/aosc-desktop:20231028
 
 RUN apt-get update && \
     apt-get --no-install-recommends -y install tigervnc xfconf xfwm4 xfdesktop xfce4-panel xfce4-session
