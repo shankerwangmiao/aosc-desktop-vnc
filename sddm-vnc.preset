@@ -1,0 +1,4 @@
+enable sddm-vnc.socket
+disable smbd.service
+disable upower.service
+disable udisks2.service

@@ -1,0 +1,10 @@
+[Unit]
+Description=Sddm vnc listener
+
+[Socket]
+ListenStream=5900
+BindIPv6Only=both
+Accept=yes
+
+[Install]
+WantedBy=sockets.target
