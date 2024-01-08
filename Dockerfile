@@ -1,24 +1,20 @@
-FROM localhost/aosc-desktop:20231028
+FROM localhost/loongnix-ow:20.5
 
-RUN apt-get update && \
-    apt-get --no-install-recommends -y install tigervnc xfconf xfwm4 xfdesktop xfce4-panel xfce4-session
+RUN export DEBIAN_FRONTEND=noninteractive; \
+    apt-get update && \
+    apt-get --no-install-recommends -y install iproute2 less tigervnc-standalone-server
 
-RUN sed -i '/XephyrPath/s@=.*$@=/usr/local/bin/myxvnc@' /etc/sddm.conf
 RUN mkdir -p /etc/systemd/system/console-getty.service.d/
 
-COPY myxvnc /usr/local/bin/
 COPY console-getty.override.conf /etc/systemd/system/console-getty.service.d/override.conf
-COPY sddm-vnc.socket /etc/systemd/system/
-COPY sddm-vnc@.service /etc/systemd/system/
-COPY sddm-vnc.preset /usr/lib/systemd/system-preset/70-sddm-vnc.preset
-RUN rm -f /usr/lib/systemd/system-preset/70-aosc-os-plasma.preset /usr/lib/systemd/system-preset/80-aosc-os-base.preset
-RUN useradd -m -s /bin/bash user
+COPY default.preset /lib/systemd/system-preset/99-default.preset
+COPY vnc.preset /lib/systemd/system-preset/70-vnc.preset
+COPY lightdm.conf /etc/lightdm/lightdm.conf
+RUN userdel -f -r loongson && useradd -m -s /bin/bash user
+RUN rm -f /etc/machine-id
+RUN systemctl disable ModemManager.service wpa_supplicant.service NetworkManager.service NetworkManager-dispatcher.service systemd-timesyncd.service systemd-resolved.service
 RUN echo 'user:shanker' | chpasswd
-RUN echo "LANG=zh_CN.UTF-8" > /etc/locale.conf
-RUN sed -i '/pam_limits\.so/s/required/optional/' /etc/pam.d/system-auth
-RUN sed -i '/pam_loginuid\.so/s/required/optional/' /usr/lib/pam.d/systemd-user
-RUN systemctl mask rtkit-daemon.service
-RUN echo 'XDG_VTNR=0' > /etc/env-vnc-pre
-RUN sed -i $'0,/session/{ /session/ i session required pam_env.so envfile=/etc/env-vnc-pre\n}' /etc/pam.d/sddm
+RUN sed -i '/pam_limits\.so/s/required/optional/' /etc/pam.d/*
+RUN sed -i '/pam_loginuid\.so/s/required/optional/' /etc/pam.d/*
 
 CMD [ "/sbin/init" ]
